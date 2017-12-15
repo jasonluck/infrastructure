@@ -51,17 +51,17 @@ module "consul_cluster" {
   subnet_ids = ["${data.aws_subnet_ids.private.ids}"]
   ssh_key_name = "${aws_key_pair.auth.key_name}"
   ami_id = "${var.consul_ami_id == "" ? data.aws_ami.consul.image_id : var.consul_ami_id}"
-  instance_type = "t2.medium"
+  instance_type = "${var.consul_instance_type}"
 
   # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
   # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
   allowed_inbound_cidr_blocks = ["0.0.0.0/0"]
   allowed_ssh_cidr_blocks = ["0.0.0.0/0"]
 
-  cluster_name  = "consul-dev"
-  cluster_tag_key   = "consul-cluster"
-  cluster_tag_value = "development"
-  cluster_size = 3
+  cluster_name  = "${var.consul_cluster_name}"
+  cluster_tag_key   = "${var.consul_cluster_tag_key}"
+  cluster_tag_value = "${var.consul_cluster_name}"
+  cluster_size = "${var.consul_cluster_size}"
 
 
   # Configure and start Consul during boot. It will automatically form a cluster with all nodes that have that same tag. 
@@ -112,9 +112,9 @@ data "aws_ami" "vault_consul" {
 module "vault_cluster" {
   source = "github.com/hashicorp/terraform-aws-vault.git//modules/vault-cluster?ref=v0.0.8"
 
-  cluster_name  = "vault-dev"
-  cluster_size  = 3
-  instance_type = "t2.medium"
+  cluster_name  = "${var.vault_cluster_name}"
+  cluster_size  = "${var.vault_cluster_size}"
+  instance_type = "${var.vault_instance_type}"
 
   ami_id    = "${var.vault_ami_id == "" ? data.aws_ami.vault_consul.image_id : var.vault_ami_id}"
   user_data = "${data.template_file.user_data_vault_cluster.rendered}"
