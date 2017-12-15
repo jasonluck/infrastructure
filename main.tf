@@ -63,12 +63,7 @@ module "consul_cluster" {
   cluster_tag_value = "${var.consul_cluster_name}"
   cluster_size = "${var.consul_cluster_size}"
 
-
-  # Configure and start Consul during boot. It will automatically form a cluster with all nodes that have that same tag. 
-  user_data = <<-EOF
-              #!/bin/bash
-              /opt/consul/bin/run-consul --server --cluster-tag-key consul-cluster --cluster-tag-value development
-              EOF
+  user_data = "${data.template_file.user_data_consul.rendered}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
